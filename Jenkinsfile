@@ -23,7 +23,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'docker-creds',
-                    usernameVariable: 'guru0114!',
+                    usernameVariable: 'guru0114',
                     passwordVariable: 'Puneet@0114'
                 )]) {
                     sh 'echo $PASS | docker login -u $USER --password-stdin'
