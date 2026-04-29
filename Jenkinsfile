@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "your_docker_username/node-app"
+        DOCKER_IMAGE = "guru0114/node-app"
     }
 
     stages {
 
         stage('Clone Code') {
             steps {
-                git 'https://github.com/your-repo/node-app.git'
+               git branch: 'main', url: 'https://github.com/Gurraiah123/sample-app.git'
             }
         }
 
@@ -23,8 +23,8 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'docker-creds',
-                    usernameVariable: 'USER',
-                    passwordVariable: 'PASS'
+                    usernameVariable: 'guru0114!',
+                    passwordVariable: 'Puneet@0114'
                 )]) {
                     sh 'echo $PASS | docker login -u $USER --password-stdin'
                     sh 'docker push $DOCKER_IMAGE:latest'
