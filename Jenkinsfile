@@ -9,13 +9,18 @@ pipeline {
 
         stage('Clone Code') {
             steps {
-               git branch: 'main', url: 'https://github.com/Gurraiah123/sample-app.git'
+                git branch: 'main', url: 'https://github.com/Gurraiah123/sample-app.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t $DOCKER_IMAGE:latest .'
+                retry(2) {
+                    sh '''
+                    export DOCKER_BUILDKIT=0
+                    docker build -t $DOCKER_IMAGE:latest .
+                    '''
+                }
             }
         }
 
@@ -23,11 +28,13 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'docker-creds',
-                    usernameVariable: 'guru0114',
-                    passwordVariable: 'Puneet@0114'
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    sh 'echo $PASS | docker login -u $USER --password-stdin'
-                    sh 'docker push $DOCKER_IMAGE:latest'
+                    sh '''
+                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                    docker push $DOCKER_IMAGE:latest
+                    '''
                 }
             }
         }
@@ -35,8 +42,10 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-                    sh 'kubectl apply -f deployment.yaml'
-                    sh 'kubectl apply -f service.yaml'
+                    sh '''
+                    kubectl apply -f deployment.yaml
+                    kubectl apply -f service.yaml
+                    '''
                 }
             }
         }
