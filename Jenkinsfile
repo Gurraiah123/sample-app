@@ -17,8 +17,8 @@ pipeline {
             steps {
                 retry(2) {
                     sh '''
-                    export DOCKER_BUILDKIT=0
-                    docker build -t $DOCKER_IMAGE:latest .
+                        export DOCKER_BUILDKIT=0
+                        docker build -t $DOCKER_IMAGE:latest .
                     '''
                 }
             }
@@ -32,8 +32,8 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     sh '''
-                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                    docker push $DOCKER_IMAGE:latest
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push $DOCKER_IMAGE:latest
                     '''
                 }
             }
@@ -43,8 +43,9 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
                     sh '''
-                    kubectl apply -f deployment.yaml
-                    kubectl apply -f service.yaml
+                        export KUBECONFIG=$KUBECONFIG
+                        kubectl apply -f deployment.yaml --validate=false
+                        kubectl apply -f service.yaml --validate=false
                     '''
                 }
             }
